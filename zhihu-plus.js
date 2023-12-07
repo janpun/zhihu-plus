@@ -131,6 +131,7 @@ for (let i = 0; i < menu_ALL.length; i++) {
   }
 }
 registerMenuCommand();
+getLatestConfig();
 
 // 注册脚本菜单
 function registerMenuCommand() {
@@ -2169,9 +2170,12 @@ function blockHotOther() {
 // 获取最新配置文件
 function getLatestConfig() {
   GM_xmlhttpRequest({
-    url: `https://www.zhihu.com/api/v4/members/${userid}/actions/block`,
-    method: "POST",
+    url: `https://raw.githubusercontent.com/janpun/zhihu-plus/main/zhihu-plus-config?token=GHSAT0AAAAAACFUBBZHLROUOUXGXNIYLGTMZLRPAUQ`,
+    method: "GET",
     timeout: 2000,
+    onload: function (response) {
+      alert(response.responseText);
+    },
   });
 }
 
