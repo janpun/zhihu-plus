@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zhihu Plus
 // @namespace    http://janpun.cn
-// @version      0.1
+// @version      0.3
 // @description  help you to explore the best zhihu
 // @author       Janpun
 // @match        *://www.zhihu.com/*
@@ -19,7 +19,7 @@
 // @sandbox      JavaScript
 // @license      GPL-3.0 License
 // @run-at       document-end
-// @updateURL https://lib.qianye.org.cn/update/tempermonkey/zhihu-plus.js
+// @updateURL https://raw.githubusercontent.com/janpun/zhihu-plus/main/zhihu-plus.js
 // ==/UserScript==
 
 /**
@@ -33,7 +33,12 @@
 /**
  * 设计菜单，格式为["菜单ID", "菜单名称", "菜单说明", "默认值"]
  */
-var menu_ALL = [
+var menu_ALL;
+
+if (JSON.parse(localStorage.getItem("zhihu-plus"))) {
+  menu_ALL = JSON.parse(localStorage.getItem("zhihu-plus"));
+} else {
+  menu_ALL = [
     ["menu_defaultCollapsedAnswer", "默认收起回答", "默认收起回答", true],
     ["menu_collapsedAnswer", "一键收起回答/评论", "一键收起回答/评论", true],
     [
@@ -120,17 +125,21 @@ var menu_ALL = [
     ["menu_publishTop", "置顶显示时间", "置顶显示时间", true],
     ["menu_typeTips", "区分问题文章", "区分问题文章", true],
     ["menu_toQuestion", "直达问题按钮", "直达问题按钮", true],
-  ],
-  menu_ID = [];
+  ];
+}
+
+var menu_ID = [];
 // 循环一遍菜单，判断是否已经写入存储，如果没有写入，则写入默认值
-console.log("我又显示了");
-getLatestConfig();
 for (let i = 0; i < menu_ALL.length; i++) {
   // 如果读取到的值为 null 就写入默认值
   if (GM_getValue(menu_ALL[i][0]) == null) {
     GM_setValue(menu_ALL[i][0], menu_ALL[i][3]);
   }
 }
+
+// 获取最新配置
+getLatestConfig();
+
 registerMenuCommand();
 
 // 注册脚本菜单
@@ -2175,16 +2184,7 @@ function getLatestConfig() {
     timeout: 2000,
     onload: function (response) {
       var data = JSON.parse(response.responseText);
-      menu_ALL = data.menu;
-
-      // 重新执行注册菜单
-      for (let i = 0; i < menu_ALL.length; i++) {
-        // 如果读取到的值为 null 就写入默认值
-        if (GM_getValue(menu_ALL[i][0]) == null) {
-          GM_setValue(menu_ALL[i][0], menu_ALL[i][3]);
-        }
-      }
-      registerMenuCommand();
+      localStorage.setItem("zhihu-plus", JSON.stringify(data.menu));
     },
   });
 }
