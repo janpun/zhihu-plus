@@ -124,6 +124,7 @@ var menu_ALL = [
   menu_ID = [];
 // 循环一遍菜单，判断是否已经写入存储，如果没有写入，则写入默认值
 console.log("我又显示了");
+getLatestConfig();
 for (let i = 0; i < menu_ALL.length; i++) {
   // 如果读取到的值为 null 就写入默认值
   if (GM_getValue(menu_ALL[i][0]) == null) {
@@ -131,7 +132,6 @@ for (let i = 0; i < menu_ALL.length; i++) {
   }
 }
 registerMenuCommand();
-getLatestConfig();
 
 // 注册脚本菜单
 function registerMenuCommand() {
@@ -2170,11 +2170,21 @@ function blockHotOther() {
 // 获取最新配置文件
 function getLatestConfig() {
   GM_xmlhttpRequest({
-    url: `https://raw.githubusercontent.com/janpun/zhihu-plus/main/zhihu-plus-config?token=GHSAT0AAAAAACFUBBZHLROUOUXGXNIYLGTMZLRPAUQ`,
+    url: `https://raw.githubusercontent.com/janpun/zhihu-plus/main/zhihu-plus-config.json`,
     method: "GET",
     timeout: 2000,
     onload: function (response) {
-      alert(response.responseText);
+      var data = JSON.parse(response.responseText);
+      menu_ALL = data.menu;
+
+      // 重新执行注册菜单
+      for (let i = 0; i < menu_ALL.length; i++) {
+        // 如果读取到的值为 null 就写入默认值
+        if (GM_getValue(menu_ALL[i][0]) == null) {
+          GM_setValue(menu_ALL[i][0], menu_ALL[i][3]);
+        }
+      }
+      registerMenuCommand();
     },
   });
 }
